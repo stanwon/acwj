@@ -1,6 +1,7 @@
-#include "defs.h"
+#include "1defs.h"
 #include "data.h"
 #include "decl.h"
+#include <stdio.h>
 
 static int next() {
   int c;
@@ -38,7 +39,7 @@ static int chrpos(char *str, int c) {
 static int scanint(int c) {
   int k, val = 0;
 
-  while((k = chrpos("0123456789", c)) >= 0){
+  while ((k = chrpos("0123456789", c)) >= 0) {
     val = val * 10 + k;
     c = next();
   }
@@ -53,6 +54,7 @@ int scan(struct token *t) {
   c = skip();
   switch (c) {
   case EOF:
+    t->token = T_EOF;
     return 0;
   case '+':
     t->token = T_PLUS;

@@ -1,8 +1,8 @@
 all: scanner
-	./scanner input
+	@./scanner input
 
-scanner: main.c scan.c
-	cc -o scanner -g main.c scan.c
+scanner: main.c scan.c expr.c interp.c tree.c
+	@cc -o scanner -g main.c scan.c expr.c interp.c tree.c
 
 clean:
-	rm -f scanner *.o
+	@rm -f scanner *.o

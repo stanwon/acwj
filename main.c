@@ -1,5 +1,6 @@
-#include "defs.h"
+#include "1defs.h"
 #include "decl.h"
+#include <stdio.h>
 #define extern_
 #include "data.h"
 #undef extern_
@@ -15,21 +16,9 @@ static void usage(char *prog) {
   exit(1);
 }
 
-char *tokstr[] = {"+", "-", "*", "/", "inlit"};
-
-static void scanfile() {
-  struct token T;
-
-  while (scan(&T)) {
-    printf("Token %s", tokstr[T.token]);
-    if (T_INTLIT == T.token) {
-      printf(", value %d", T.intvalue);
-    }
-    printf("\n");
-  }
-}
-
 int main(int argc, char *argv[]) {
+  struct ASTnode *n;
+
   if (2 != argc) {
     usage("argv[0]");
   }
@@ -40,6 +29,8 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  scanfile();
+  scan(&Token);
+  n = binexpr();
+  printf("%d\n", interpretAST(n));
   exit(0);
 }
