@@ -1,7 +1,17 @@
 #include "1defs.h"
 #include "data.h"
 #include "decl.h"
-#include <stdio.h>
+
+static int OpPrec[] = {0, 10, 10, 20, 20, 0};
+
+static int op_precedence(int tokentype) {
+  int prec = OpPrec[tokentype];
+  if (0 == prec) {
+    fprintf(stderr, "syntax error on line %d, tokentype %d\n", Line, tokentype);
+    exit(1);
+  }
+  return prec;
+}
 
 int arithop(int token) {
   switch (token) {
@@ -32,18 +42,29 @@ static struct ASTnode *primary() {
   }
 }
 
-struct ASTnode *binexpr() {
-  struct ASTnode *n, *left, *right;
-  int nodetype;
+struct ASTnode *binexpr(int ptp) {
+  struct ASTnode *left, *right;
+  int tokentype;
 
   left = primary();
-  if (T_EOF == Token.token) {
+
+  tokentype = Token.token;
+  if (T_EOF == tokentype) {
     return left;
   }
 
-  nodetype = arithop(Token.token);
-  scan(&Token);
-  right = binexpr();
-  n = mkastnode(nodetype, left, right, 0);
-  return n;
+  while (op_precedence(tokentype) > ptp) {
+    scan(&Token);
+
+    right = binexpr(OpPrec[tokentype]);
+
+    left = mkastnode(arithop(tokentype), left, right, 0);
+
+    tokentype = Token.token;
+    if(T_EOF == tokentype){
+      break;
+    }
+  }
+
+  return left;
 }
