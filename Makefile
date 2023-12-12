@@ -1,15 +1,16 @@
-SRC = main.c \
-			scan.c \
-			expr.c \
-			interp.c \
-			tree.c
+SRC = *.c
 
 all: scanner
-	@./scanner input
-
+	@./$< input
 
 scanner: $(SRC)
 	@cc -o $@ -g $^
 
+out: tar
+	@./$@
+
+tar: out.s
+	@cc -o out $<
+
 clean:
-	@rm -f scanner *.o
+	@rm -f scanner *.o *.s out

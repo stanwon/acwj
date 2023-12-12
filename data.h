@@ -6,3 +6,4 @@ extern_ int Line;
 extern_ int Putback;
 extern_ struct token Token;
 extern_ FILE *Infile;
+extern_ FILE *Outfile;

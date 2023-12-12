@@ -24,14 +24,22 @@ int main(int argc, char *argv[]) {
   }
 
   init();
+
   if (NULL == (Infile = fopen(argv[1], "r"))) {
     fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
     exit(1);
   }
 
-  extern char *ASTop;
+  if (NULL == (Outfile = fopen("out.s", "w"))) {
+    fprintf(stderr, "Unable to open out.s: %s\n", strerror(errno));
+    exit(1);
+  }
+
   scan(&Token);
   n = binexpr(0);
   printf("%d\n", interpretAST(n));
+
+  generatecode(n);
+  fclose(Outfile);
   exit(0);
 }
