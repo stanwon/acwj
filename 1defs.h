@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TEXTLEN 512
+
 enum {
   // T for token
   T_EOF,
@@ -11,6 +13,8 @@ enum {
   T_STAR,
   T_SLASH,
   T_INTLIT,
+  T_SEMI,
+  T_PRINT,
 };
 
 struct token {

@@ -1,16 +1,16 @@
 SRC = *.c
 
-all: scanner
-	@./$< input
+all: out
+	@./out
 
-scanner: $(SRC)
-	@cc -o $@ -g $^
-
-out: tar
-	@./$@
-
-tar: out.s
+out: out.s
 	@cc -o out $<
 
+out.s: comp input
+	@./$< input
+
+comp: $(SRC)
+	@cc -o $@ -g $^
+
 clean:
-	@rm -f scanner *.o *.s out
+	@rm -f comp *.o *.s out

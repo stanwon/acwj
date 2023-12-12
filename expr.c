@@ -49,7 +49,7 @@ struct ASTnode *binexpr(int ptp) {
   left = primary();
 
   tokentype = Token.token;
-  if (T_EOF == tokentype) {
+  if (T_SEMI == tokentype) {
     return left;
   }
 
@@ -61,7 +61,7 @@ struct ASTnode *binexpr(int ptp) {
     left = mkastnode(arithop(tokentype), left, right, 0);
 
     tokentype = Token.token;
-    if(T_EOF == tokentype){
+    if(T_SEMI == tokentype){
       break;
     }
   }
