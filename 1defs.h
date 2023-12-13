@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define TEXTLEN 512
+#define NSYMBOLS 1024
 
 enum {
   // T for token
@@ -15,6 +16,9 @@ enum {
   T_INTLIT,
   T_SEMI,
   T_PRINT,
+  T_INT,
+  T_EQUALS,
+  T_IDENT,
 };
 
 struct token {
@@ -29,11 +33,21 @@ enum {
   A_MULTIPLY,
   A_DIVIDE,
   A_INTLIT,
+  A_IDENT,
+  A_LVIDENT,
+  A_ASSIGN,
 };
 
 struct ASTnode {
   int op;
   struct ASTnode *left;
   struct ASTnode *right;
-  int intvalue;
+  union {
+    int intvalue;
+    int id;
+  } v;
+};
+
+struct symtable {
+  char *name;
 };

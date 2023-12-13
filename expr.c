@@ -7,14 +7,13 @@ static int OpPrec[] = {0, 10, 10, 20, 20, 0};
 static int op_precedence(int tokentype) {
   int prec = OpPrec[tokentype];
   if (0 == prec) {
-    fprintf(stderr, "syntax error on line %d, tokentype %d\n", Line, tokentype);
-    exit(1);
+    fatald("Syntax error, token", tokentype);
   }
   return prec;
 }
 
-int arithop(int token) {
-  switch (token) {
+int arithop(int tokentype) {
+  switch (tokentype) {
   case T_PLUS:
     return A_ADD;
   case T_MINUS:
@@ -24,22 +23,31 @@ int arithop(int token) {
   case T_SLASH:
     return A_DIVIDE;
   default:
-    fprintf(stderr, "unknown token in arithop() on line%d\n", Line);
-    exit(1);
+    fatald("Syntax error, token", tokentype);
   }
 }
 
 static struct ASTnode *primary() {
   struct ASTnode *n;
+  int id;
+
   switch (Token.token) {
   case T_INTLIT:
     n = mkastleaf(A_INTLIT, Token.intvalue);
-    scan(&Token);
-    return n;
+    break;
+  case T_IDENT:
+    id = findglob(Text);
+    if (-1 == id) {
+      fatals("Unknown variable", Text);
+    }
+    n = mkastleaf(A_IDENT, id);
+    break;
   default:
-    fprintf(stderr, "syntax error on line %d\n", Line);
-    exit(1);
+    fatald("Syntax error, token", Token.token);
   }
+
+  scan(&Token);
+  return n;
 }
 
 struct ASTnode *binexpr(int ptp) {
@@ -61,10 +69,9 @@ struct ASTnode *binexpr(int ptp) {
     left = mkastnode(arithop(tokentype), left, right, 0);
 
     tokentype = Token.token;
-    if(T_SEMI == tokentype){
+    if (T_SEMI == tokentype) {
       break;
     }
   }
-
   return left;
 }

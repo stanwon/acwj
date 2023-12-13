@@ -1,6 +1,5 @@
 #include "1defs.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "decl.h"
 
 struct ASTnode *mkastnode(int op, struct ASTnode *left, struct ASTnode *right,
                           int intvalue) {
@@ -8,13 +7,12 @@ struct ASTnode *mkastnode(int op, struct ASTnode *left, struct ASTnode *right,
 
   n = (struct ASTnode *)malloc(sizeof(struct ASTnode));
   if (NULL == n) {
-    fprintf(stderr, "Unable to malloc in mkastnode()\n");
-    exit(1);
+    fatal("Unable to malloc in mkastnode()");
   }
   n->op = op;
   n->left = left;
   n->right = right;
-  n->intvalue = intvalue;
+  n->v.intvalue = intvalue;
   return n;
 }
 

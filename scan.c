@@ -1,8 +1,6 @@
 #include "1defs.h"
 #include "data.h"
 #include "decl.h"
-#include <ctype.h>
-#include <string.h>
 
 static int next() {
   int c;
@@ -78,6 +76,11 @@ static int keyword(char *s) {
       return T_PRINT;
     }
     break;
+  case 'i':
+    if (!strcmp(s, "int")) {
+      return T_INT;
+    }
+    break;
   }
   return 0;
 }
@@ -105,6 +108,9 @@ int scan(struct token *t) {
   case ';':
     t->token = T_SEMI;
     break;
+  case '=':
+    t->token = T_EQUALS;
+    break;
   default:
     if (isdigit(c)) {
       t->token = T_INTLIT;
@@ -118,12 +124,10 @@ int scan(struct token *t) {
         t->token = tokentype;
         break;
       }
-      printf("Unrecognised symbol %s on line %d\n", Text, Line);
-      exit(1);
+      t->token = T_IDENT;
+      break;
     }
-
-    printf("Unregconised character %c on line %d\n", c, Line);
-    exit(1);
+    fatalc("Unrecognised character", c);
   }
   return 1;
 }

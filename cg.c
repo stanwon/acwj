@@ -19,14 +19,12 @@ static int alloc_register() {
     }
   }
 
-  fprintf(stderr, "Out of registers!\n");
-  exit(1);
+  fatal("Out of registers");
 }
 
 static void free_register(int reg) {
   if (0 != freereg[reg]) {
-    fprintf(stderr, "Error trying to free register %d\n", reg);
-    exit(1);
+    fatald("Error trying to free register", reg);
   }
   freereg[reg] = 1;
 }
@@ -65,13 +63,24 @@ void cgpostamble() {
         Outfile);
 }
 
-int cgload(int value) {
+int cgloadint(int value) {
   int r = alloc_register();
-
   fprintf(Outfile, "\tmovq\t$%d, %s\n", value, reglist[r]);
-
   return r;
 }
+
+int cgloadglob(char *identifier) {
+  int r = alloc_register();
+  fprintf(Outfile, "\tmovq\t%s(\%%rip), %s\n", identifier, reglist[r]);
+  return r;
+}
+
+int cgstorglob(int r, char *identifier) {
+  fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], identifier);
+  return r;
+}
+
+void cgglobsym(char *sym) { fprintf(Outfile, "\t.comm\t%s,8,8\n", sym); }
 
 int cgadd(int r1, int r2) {
   fprintf(Outfile, "\taddq\t%s, %s\n", reglist[r1], reglist[r2]);
@@ -97,10 +106,10 @@ int cgdiv(int r1, int r2) {
   fprintf(Outfile, "\tidivq\t%s\n", reglist[r2]);
   fprintf(Outfile, "\tmovq\t%%rax,%s\n", reglist[r1]);
   free_register(r2);
-  return(r1);
+  return (r1);
 }
 
-void cgprintint(int r){
+void cgprintint(int r) {
   fprintf(Outfile, "\tmovq\t%s, %%rdi\n", reglist[r]);
   fprintf(Outfile, "\tcall\tprintint\n");
   free_register(r);
