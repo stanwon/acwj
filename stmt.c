@@ -27,7 +27,7 @@ void assignment_statement() {
 
   right = mkastleaf(A_LVIDENT, id);
 
-  match(T_EQUALS, "=");
+  match(T_ASSIGN, "=");
 
   left = binexpr(0);
 
