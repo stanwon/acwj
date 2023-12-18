@@ -17,6 +17,8 @@ static void usage(char *prog) {
 }
 
 int main(int argc, char *argv[]) {
+  struct ASTnode *tree = NULL;
+
   if (2 != argc) {
     usage("argv[0]");
   }
@@ -35,7 +37,9 @@ int main(int argc, char *argv[]) {
 
   scan(&Token);
   genpreamble();
-  statements();
+  tree = compound_statement();
+
+  genAST(tree, NOREG, 0);
   genpostamble();
 
   fclose(Outfile);

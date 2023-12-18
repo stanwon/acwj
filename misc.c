@@ -13,8 +13,11 @@ void match(int t, char *what) {
 }
 
 void ident() { match(T_IDENT, "identifier"); }
-
 void semi() { match(T_SEMI, ";"); }
+void lbrace() { match(T_LBRACE, "{"); }
+void rbrace() { match(T_RBRACE, "}"); }
+void lparen() { match(T_LPAREN, "("); }
+void rparen() { match(T_RPAREN, ")"); }
 
 void fatal(char *s) {
   fprintf(stderr, "%s on line %d\n", s, Line);

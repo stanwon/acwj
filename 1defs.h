@@ -5,31 +5,39 @@
 
 #define TEXTLEN 512
 #define NSYMBOLS 1024
+#define NOREG	-1		// Use NOREG when the AST generation
 
 enum {
   // T for token
-  T_EOF,
+  T_EOF = 0,
 
-  T_PLUS,
+  T_PLUS = 1,
   T_MINUS,
   T_STAR,
   T_SLASH,
 
-  T_EQ,
+  T_EQ = 5,
   T_NE,
   T_LT,
   T_GT,
   T_LE,
   T_GE,
 
-  T_INTLIT,
+  T_INTLIT = 11,
 
-  T_SEMI,
+  T_SEMI = 12,
   T_ASSIGN,
   T_IDENT,
 
-  T_PRINT,
+  T_LBRACE = 15,
+  T_RBRACE,
+  T_LPAREN,
+  T_RPAREN,
+
+  T_PRINT = 19,
   T_INT,
+  T_IF,
+  T_ELSE,
 };
 
 struct token {
@@ -44,23 +52,27 @@ enum {
   A_MULTIPLY,
   A_DIVIDE,
 
-  A_EQ,
+  A_EQ = 5,
   A_NE,
   A_LT,
   A_GT,
   A_LE,
   A_GE,
 
-  A_INTLIT,
+  A_INTLIT = 11,
 
-  A_IDENT,
+  A_IDENT = 12,
   A_LVIDENT,
   A_ASSIGN,
+  A_PRINT,
+  A_GLUE,
+  A_IF,
 };
 
 struct ASTnode {
   int op;
   struct ASTnode *left;
+  struct ASTnode *mid;
   struct ASTnode *right;
   union {
     int intvalue;

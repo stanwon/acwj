@@ -3,15 +3,66 @@
 #include "decl.h"
 #include <stdio.h>
 
-int genAST(struct ASTnode *n, int reg) {
+static int label(void) {
+  static int id = 1;
+  return (id++);
+}
+
+static int genIFAST(struct ASTnode *n) {
+  int Lfalse, Lend;
+
+  Lfalse = label();
+  if (n->right) {
+    Lend = label();
+  }
+
+  genAST(n->left, Lfalse, n->op);
+  genfreeregs();
+
+  genAST(n->mid, NOREG, n->op);
+  genfreeregs();
+
+  if (n->right) {
+    cgjump(Lend);
+  }
+
+  cglabel(Lfalse);
+
+  if (n->right) {
+    genAST(n->right, NOREG, n->op);
+    genfreeregs();
+    cglabel(Lend);
+  }
+
+  return NOREG;
+}
+
+int genAST(struct ASTnode *n, int reg, int parentASTop) {
   int leftreg, rightreg;
 
+  printf("%s %d: op = %d\n", __FUNCTION__, __LINE__, n->op);
+  if (n->left)
+    printf("%s %d: left-op = %d\n", __FUNCTION__, __LINE__, n->left->op);
+  if (n->right)
+    printf("%s %d: right-op = %d\n", __FUNCTION__, __LINE__, n->right->op);
+
+  switch (n->op) {
+  case A_IF:
+    return genIFAST(n);
+  case A_GLUE:
+    genAST(n->left, NOREG, n->op);
+    genfreeregs();
+    genAST(n->right, NOREG, n->op);
+    genfreeregs();
+    return NOREG;
+  }
+
   if (n->left) {
-    leftreg = genAST(n->left, -1);
+    leftreg = genAST(n->left, NOREG, n->op);
   }
 
   if (n->right) {
-    rightreg = genAST(n->right, leftreg);
+    rightreg = genAST(n->right, leftreg, n->op);
   }
 
   switch (n->op) {
@@ -24,17 +75,16 @@ int genAST(struct ASTnode *n, int reg) {
   case A_DIVIDE:
     return cgdiv(leftreg, rightreg);
   case A_EQ:
-    return cgequal(leftreg, rightreg);
   case A_NE:
-    return cgnotequal(leftreg, rightreg);
   case A_LT:
-    return cglessthan(leftreg, rightreg);
   case A_GT:
-    return cggreaterthan(leftreg, rightreg);
   case A_LE:
-    return cglessequal(leftreg, rightreg);
   case A_GE:
-    return cggreaterequal(leftreg, rightreg);
+    if (A_IF == parentASTop) {
+      return (cgcompare_and_jump(n->op, leftreg, rightreg, reg));
+    } else {
+      return (cgcompare_and_set(n->op, leftreg, rightreg));
+    }
   case A_INTLIT:
     return cgloadint(n->v.intvalue);
   case A_IDENT:
@@ -43,6 +93,10 @@ int genAST(struct ASTnode *n, int reg) {
     return cgstorglob(reg, Gsym[n->v.id].name);
   case A_ASSIGN:
     return rightreg;
+  case A_PRINT:
+    genprintint(leftreg);
+    genfreeregs();
+    return NOREG;
   default:
     fatald("Unknown AST operator", n->op);
   }

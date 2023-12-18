@@ -51,7 +51,7 @@ static int scanident(int c, char *buf, int lim) {
   int i = 0;
 
   while (isalpha(c) || isdigit(c) || '_' == c) {
-    if (lim - 1 == 1) {
+    if (lim - 1 == i) {
       printf("identifier too long on line %d\n", Line);
       exit(1);
     } else if (i < lim - 1) {
@@ -79,6 +79,14 @@ static int keyword(char *s) {
   case 'i':
     if (!strcmp(s, "int")) {
       return T_INT;
+    }
+    if (!strcmp(s, "if")) {
+      return T_IF;
+    }
+    break;
+  case 'e':
+    if (!strcmp(s, "else")) {
+      return T_ELSE;
     }
     break;
   }
@@ -108,8 +116,20 @@ int scan(struct token *t) {
   case ';':
     t->token = T_SEMI;
     break;
+  case '(':
+    t->token = T_LPAREN;
+    break;
+  case ')':
+    t->token = T_RPAREN;
+    break;
+  case '{':
+    t->token = T_LBRACE;
+    break;
+  case '}':
+    t->token = T_RBRACE;
+    break;
   case '=':
-    if ((c = next() == '=')) {
+    if ((c = next()) == '=') {
       t->token = T_EQ;
     } else {
       putback(c);
