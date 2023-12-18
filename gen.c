@@ -8,7 +8,7 @@ static int label(void) {
   return (id++);
 }
 
-static int genIFAST(struct ASTnode *n) {
+static int genIF(struct ASTnode *n) {
   int Lfalse, Lend;
 
   Lfalse = label();
@@ -37,18 +37,33 @@ static int genIFAST(struct ASTnode *n) {
   return NOREG;
 }
 
+static int genWHILE(struct ASTnode *n) {
+  int Lstart, Lend;
+
+  Lstart = label();
+  Lend = label();
+  cglabel(Lstart);
+
+  genAST(n->left, Lend, n->op);
+  genfreeregs();
+
+  genAST(n->right, NOREG, n->op);
+  genfreeregs();
+
+  cgjump(Lstart);
+  cglabel(Lend);
+
+  return NOREG;
+}
+
 int genAST(struct ASTnode *n, int reg, int parentASTop) {
   int leftreg, rightreg;
 
-  printf("%s %d: op = %d\n", __FUNCTION__, __LINE__, n->op);
-  if (n->left)
-    printf("%s %d: left-op = %d\n", __FUNCTION__, __LINE__, n->left->op);
-  if (n->right)
-    printf("%s %d: right-op = %d\n", __FUNCTION__, __LINE__, n->right->op);
-
   switch (n->op) {
   case A_IF:
-    return genIFAST(n);
+    return genIF(n);
+  case A_WHILE:
+    return genWHILE(n);
   case A_GLUE:
     genAST(n->left, NOREG, n->op);
     genfreeregs();
@@ -80,7 +95,7 @@ int genAST(struct ASTnode *n, int reg, int parentASTop) {
   case A_GT:
   case A_LE:
   case A_GE:
-    if (A_IF == parentASTop) {
+    if (A_IF == parentASTop || A_WHILE) {
       return (cgcompare_and_jump(n->op, leftreg, rightreg, reg));
     } else {
       return (cgcompare_and_set(n->op, leftreg, rightreg));

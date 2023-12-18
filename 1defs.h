@@ -38,6 +38,8 @@ enum {
   T_INT,
   T_IF,
   T_ELSE,
+  T_WHILE,
+  T_FOR,
 };
 
 struct token {
@@ -67,6 +69,7 @@ enum {
   A_PRINT,
   A_GLUE,
   A_IF,
+  A_WHILE,
 };
 
 struct ASTnode {
