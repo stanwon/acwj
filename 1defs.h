@@ -8,6 +8,7 @@
 #define NOREG	-1		// Use NOREG when the AST generation
 
 #define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count)
+#define msg_op(op) printf("%s()<%d>: op: %d\n", __FUNCTION__, __LINE__, op)
 
 enum {
   // T for token
