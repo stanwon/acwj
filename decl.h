@@ -1,8 +1,10 @@
 int scan(struct token *t);
-struct ASTnode *mkastnode(int op, struct ASTnode *left, struct ASTnode *mid,
-                          struct ASTnode *right, int intvalue);
-struct ASTnode *mkastleaf(int op, int intvalue);
-struct ASTnode *mkastunary(int op, struct ASTnode *left, int intvalue);
+struct ASTnode *mkastnode(int op, int type, struct ASTnode *left,
+                          struct ASTnode *mid, struct ASTnode *right,
+                          int intvalue);
+struct ASTnode *mkastleaf(int op, int type, int intvalue);
+struct ASTnode *mkastunary(int op, int type, struct ASTnode *left,
+                           int intvalue);
 
 struct ASTnode *binexpr(int ptp);
 
@@ -13,16 +15,16 @@ void genpreamble();
 void genpostamble();
 void genfreeregs();
 void genprintint(int reg);
-void genglobsym(char *s);
+void genglobsym(int id);
 
 void freeall_registers();
 void cgpreamble();
 void cgfuncpreamble(char *name);
 void cgfuncpostamble();
 int cgloadint(int value);
-int cgloadglob(char *identifier);
-int cgstorglob(int reg, char *name);
-void cgglobsym(char *sym);
+int cgloadglob(int id);
+int cgstorglob(int reg, int id);
+void cgglobsym(int id);
 int cgadd(int r1, int r2);
 int cgsub(int r1, int r2);
 int cgmul(int r1, int r2);
@@ -38,6 +40,7 @@ int cgcompare_and_set(int ASTop, int r1, int r2);
 int cgcompare_and_jump(int ASTop, int r1, int r2, int label);
 void cglabel(int l);
 void cgjump(int l);
+int cgwiden(int r, int oldtype, int newtype);
 
 void statements();
 
@@ -61,4 +64,6 @@ struct ASTnode *if_statement();
 struct ASTnode *compound_statement();
 
 int findglob(char *s);
-int addglob(char *name);
+int addglob(char *name, int type, int stype);
+
+int type_compatible(int *left, int *right, int onlyright);

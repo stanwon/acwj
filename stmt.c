@@ -6,16 +6,29 @@ static struct ASTnode *single_statement(void);
 
 struct ASTnode *print_statement() {
   struct ASTnode *tree;
+  int lefttype, righttype;
 
   match(T_PRINT, "print");
   tree = binexpr(0);
-  tree = mkastunary(A_PRINT, tree, 0);
 
+  lefttype = P_INT;
+  righttype = tree->type;
+
+  if (!type_compatible(&lefttype, &righttype, 0)) {
+    fatal("Incompatible types");
+  }
+
+  if (righttype) {
+    tree = mkastunary(righttype, P_INT, tree, 0);
+  }
+
+  tree = mkastunary(A_PRINT, P_NONE, tree, 0);
   return tree;
 }
 
 struct ASTnode *assignment_statement() {
   struct ASTnode *left, *right, *tree;
+  int lefttype, righttype;
   int id;
 
   ident();
@@ -23,13 +36,22 @@ struct ASTnode *assignment_statement() {
   if (-1 == (id = findglob(Text))) {
     fatals("Undeclared variable", Text);
   }
-  right = mkastleaf(A_LVIDENT, id);
+  right = mkastleaf(A_LVIDENT, Gsym[id].type, id);
 
   match(T_ASSIGN, "=");
 
   left = binexpr(0);
 
-  tree = mkastnode(A_ASSIGN, left, NULL, right, 0);
+  lefttype = left->type;
+  righttype = right->type;
+  if (!type_compatible(&lefttype, &righttype, 1)) {
+    fatal("Incompatible types");
+  }
+
+  if (lefttype) {
+    left = mkastunary(lefttype, right->type, left, 0);
+  }
+  tree = mkastnode(A_ASSIGN, P_INT, left, NULL, right, 0);
 
   return tree;
 }
@@ -51,7 +73,7 @@ struct ASTnode *if_statement() {
     scan(&Token);
     falseAST = compound_statement();
   }
-  return mkastnode(A_IF, conAST, trueAST, falseAST, 0);
+  return mkastnode(A_IF, P_NONE, conAST, trueAST, falseAST, 0);
 }
 
 struct ASTnode *while_statement() {
@@ -68,7 +90,7 @@ struct ASTnode *while_statement() {
 
   bodyAST = compound_statement();
 
-  return mkastnode(A_WHILE, condAST, NULL, bodyAST, 0);
+  return mkastnode(A_WHILE, P_NONE, condAST, NULL, bodyAST, 0);
 }
 
 struct ASTnode *for_statement() {
@@ -93,9 +115,9 @@ struct ASTnode *for_statement() {
 
   bodyAST = compound_statement();
 
-  tree = mkastnode(A_GLUE, bodyAST, NULL, postopAST, 0);
-  tree = mkastnode(A_WHILE, condAST, NULL, tree, 0);
-  return mkastnode(A_GLUE, preopAST, NULL, tree, 0);
+  tree = mkastnode(A_GLUE, P_NONE, bodyAST, NULL, postopAST, 0);
+  tree = mkastnode(A_WHILE, P_NONE, condAST, NULL, tree, 0);
+  return mkastnode(A_GLUE, P_NONE, preopAST, NULL, tree, 0);
 }
 
 struct ASTnode *single_statement() {
@@ -103,6 +125,7 @@ struct ASTnode *single_statement() {
   case T_PRINT:
     return print_statement();
   case T_INT:
+  case T_CHAR:
     var_declaration();
     return NULL;
   case T_IDENT:
@@ -135,7 +158,7 @@ struct ASTnode *compound_statement() {
       if (NULL == left) {
         left = tree;
       } else {
-        left = mkastnode(A_GLUE, left, NULL, tree, 0);
+        left = mkastnode(A_GLUE, P_NONE, left, NULL, tree, 0);
       }
     }
 

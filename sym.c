@@ -27,7 +27,7 @@ static int newglob() {
   return p;
 }
 
-int addglob(char *name) {
+int addglob(char *name, int type, int stype) {
   int y;
 
   if (-1 != (y = findglob(name))) {
@@ -36,5 +36,7 @@ int addglob(char *name) {
 
   y = newglob();
   Gsym[y].name = strdup(name);
+  Gsym[y].type = type;
+  Gsym[y].stype = stype;
   return y;
 }

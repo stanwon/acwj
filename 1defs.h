@@ -5,9 +5,9 @@
 
 #define TEXTLEN 512
 #define NSYMBOLS 1024
-#define NOREG	-1		// Use NOREG when the AST generation
+#define NOREG -1 // Use NOREG when the AST generation
 
-#define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count)
+#define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count++)
 #define msg_op(op) printf("%s()<%d>: op: %d\n", __FUNCTION__, __LINE__, op)
 
 enum {
@@ -44,6 +44,7 @@ enum {
   T_WHILE,
   T_FOR,
   T_VOID,
+  T_CHAR,
 };
 
 struct token {
@@ -75,10 +76,12 @@ enum {
   A_IF,
   A_WHILE,
   A_FUNCTION,
+  A_WIDEN,
 };
 
 struct ASTnode {
   int op;
+  int type;
   struct ASTnode *left;
   struct ASTnode *mid;
   struct ASTnode *right;
@@ -88,6 +91,22 @@ struct ASTnode {
   } v;
 };
 
+enum {
+  // S for structural
+  S_VARIABLE,
+  S_FUNCTION,
+};
+
 struct symtable {
   char *name;
+  int type;  // primitive type
+  int stype; // structural type
+};
+
+enum {
+  // P for primitive
+  P_NONE,
+  P_VOID,
+  P_CHAR,
+  P_INT,
 };
