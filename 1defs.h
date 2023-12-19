@@ -7,6 +7,8 @@
 #define NSYMBOLS 1024
 #define NOREG	-1		// Use NOREG when the AST generation
 
+#define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count)
+
 enum {
   // T for token
   T_EOF = 0,
@@ -40,6 +42,7 @@ enum {
   T_ELSE,
   T_WHILE,
   T_FOR,
+  T_VOID,
 };
 
 struct token {
@@ -70,6 +73,7 @@ enum {
   A_GLUE,
   A_IF,
   A_WHILE,
+  A_FUNCTION,
 };
 
 struct ASTnode {

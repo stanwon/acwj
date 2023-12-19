@@ -49,16 +49,22 @@ void cgpreamble() {
         "\tnop\n"
         "\tleave\n"
         "\tret\n"
-        "\n"
-        "\t.globl\tmain\n"
-        "\t.type\tmain, @function\n"
-        "main:\n"
-        "\tpushq\t%rbp\n"
-        "\tmovq	%rsp, %rbp\n",
+        "\n",
         Outfile);
 }
 
-void cgpostamble() {
+void cgfuncpreamble(char *name) {
+  fprintf(Outfile,
+          "\t.text\n"
+          "\t.globl\t%s\n"
+          "\t.type\t%s, @function\n"
+          "%s:\n"
+          "\tpushq\t%%rbp\n"
+          "\tmovq\t%%rsp, %%rbp\n",
+          name, name, name);
+}
+
+void cgfuncpostamble() {
   fputs("\tmovl	$0, %eax\n"
         "\tpopq	%rbp\n"
         "\tret\n",
@@ -76,13 +82,6 @@ int cgloadglob(char *identifier) {
   fprintf(Outfile, "\tmovq\t%s(\%%rip), %s\n", identifier, reglist[r]);
   return r;
 }
-
-int cgstorglob(int r, char *identifier) {
-  fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], identifier);
-  return r;
-}
-
-void cgglobsym(char *sym) { fprintf(Outfile, "\t.comm\t%s,8,8\n", sym); }
 
 int cgadd(int r1, int r2) {
   fprintf(Outfile, "\taddq\t%s, %s\n", reglist[r1], reglist[r2]);
@@ -117,6 +116,13 @@ void cgprintint(int r) {
   free_register(r);
 }
 
+int cgstorglob(int r, char *identifier) {
+  fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], identifier);
+  return r;
+}
+
+void cgglobsym(char *sym) { fprintf(Outfile, "\t.comm\t%s,8,8\n", sym); }
+
 int cgcompare(int r1, int r2, char *how) {
   fprintf(Outfile, "\tcmpq\t%s, %s\n", reglist[r2], reglist[r1]);
   fprintf(Outfile, "\t%s\t%s\n", how, breglist[r2]);
@@ -147,13 +153,9 @@ int cgcompare_and_jump(int ASTop, int r1, int r2, int label) {
   return (NOREG);
 }
 
-void cglabel(int l) {
-  fprintf(Outfile, "L%d:\n", l);
-}
+void cglabel(int l) { fprintf(Outfile, "L%d:\n", l); }
 
-void cgjump(int l) {
-  fprintf(Outfile, "\tjmp\tL%d\n", l);
-}
+void cgjump(int l) { fprintf(Outfile, "\tjmp\tL%d\n", l); }
 
 int cgequal(int r1, int r2) { return cgcompare(r1, r2, "sete"); }
 int cgnotequal(int r1, int r2) { return cgcompare(r1, r2, "setne"); }

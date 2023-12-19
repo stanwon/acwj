@@ -17,7 +17,8 @@ void genglobsym(char *s);
 
 void freeall_registers();
 void cgpreamble();
-void cgpostamble();
+void cgfuncpreamble(char *name);
+void cgfuncpostamble();
 int cgloadint(int value);
 int cgloadglob(char *identifier);
 int cgstorglob(int reg, char *name);
@@ -53,6 +54,7 @@ void fatals(char *s1, char *s2);
 void fatalc(char *s, int c);
 
 void var_declaration();
+struct ASTnode *function_declaration();
 struct ASTnode *assignment_statement();
 struct ASTnode *print_statement();
 struct ASTnode *if_statement();

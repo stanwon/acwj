@@ -3,6 +3,7 @@
 #endif
 
 extern_ int Line;
+extern_ int Count;
 extern_ int Putback;
 extern_ struct token Token;
 extern_ FILE *Infile;
