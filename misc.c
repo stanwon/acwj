@@ -1,7 +1,6 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
-#include <stdio.h>
+#include "0defs.h"
+#include "2data.h"
+#include "1decl.h"
 
 void match(int t, char *what) {
   if (t == Token.token) {

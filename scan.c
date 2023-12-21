@@ -1,6 +1,15 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
+
+static struct token *Rejtoken = NULL;
+
+void reject_token(struct token *t) {
+  if (NULL != Rejtoken) {
+    fatal("Can't reject token twice");
+  }
+  Rejtoken = t;
+}
 
 static int next() {
   int c;
@@ -94,9 +103,19 @@ static int keyword(char *s) {
       return T_IF;
     }
     break;
+  case 'l':
+    if (!strcmp(s, "long")) {
+      return T_LONG;
+    }
+    break;
   case 'p':
     if (!strcmp(s, "print")) {
       return T_PRINT;
+    }
+    break;
+  case 'r':
+    if (!strcmp(s, "return")) {
+      return T_RETURN;
     }
     break;
   case 'v':
@@ -115,6 +134,12 @@ static int keyword(char *s) {
 
 int scan(struct token *t) {
   int c, tokentype;
+
+  if (NULL != Rejtoken) {
+    t = Rejtoken;
+    Rejtoken = NULL;
+    return 1;
+  }
 
   c = skip();
   switch (c) {

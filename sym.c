@@ -1,7 +1,6 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
-#include <stdio.h>
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 static int Globs = 0;
 

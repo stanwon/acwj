@@ -1,6 +1,6 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 static int freereg[4];
 static char *reglist[4] = {"%r8", "%r9", "%r10", "%r11"};

@@ -1,8 +1,38 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 static struct ASTnode *single_statement(void);
+
+static struct ASTnode *return_statement() {
+  struct ASTnode *tree;
+  int returntype, functype;
+
+  if (P_VOID == Gsym[Functionid].type) {
+    fatal("Can't return from a void function");
+  }
+
+  match(T_RETURN, "return");
+  lparen();
+
+  tree = binexpr(0);
+
+  returntype = tree->type;
+  functype = Gsym[Functionid].type;
+  if (!type_compatible(&returntype, &functype, 1)) {
+    fatal("Incompatible types");
+  }
+
+  if (returntype) {
+    tree = mkastunary(returntype, functype, tree, 0);
+  }
+
+  tree = mkastunary(A_RETURN, P_NONE, tree, 0);
+
+  rparen();
+
+  return (tree);
+}
 
 struct ASTnode *print_statement() {
   struct ASTnode *tree;
@@ -23,7 +53,7 @@ struct ASTnode *print_statement() {
   }
 
   tree = mkastunary(A_PRINT, P_NONE, tree, 0);
-  return tree;
+  return (tree);
 }
 
 struct ASTnode *assignment_statement() {
@@ -32,6 +62,10 @@ struct ASTnode *assignment_statement() {
   int id;
 
   ident();
+
+  if (T_LPAREN == Token.token) {
+    return (funccall());
+  }
 
   if (-1 == (id = findglob(Text))) {
     fatals("Undeclared variable", Text);
@@ -136,6 +170,8 @@ struct ASTnode *single_statement() {
     return while_statement();
   case T_FOR:
     return for_statement();
+  case T_RETURN:
+    return return_statement();
   default:
     fatald("Syntax error, token", Token.token);
   }

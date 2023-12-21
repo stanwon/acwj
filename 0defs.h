@@ -45,6 +45,8 @@ enum {
   T_FOR,
   T_VOID,
   T_CHAR,
+  T_LONG,
+  T_RETURN,
 };
 
 struct token {
@@ -77,6 +79,7 @@ enum {
   A_WHILE,
   A_FUNCTION,
   A_WIDEN,
+  A_RETURN,
 };
 
 struct ASTnode {

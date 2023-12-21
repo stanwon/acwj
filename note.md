@@ -15,6 +15,9 @@
 # 语句
 
 # 变量
+    定义变量        cgglobsym()
+    变量 >> 寄存器  cgloadglob()
+    寄存器 >> 变量  cgstorglob()
 
 # 比较运算符
 

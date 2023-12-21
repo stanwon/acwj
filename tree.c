@@ -1,5 +1,5 @@
-#include "1defs.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
 
 struct ASTnode *mkastnode(int op, int type, struct ASTnode *left,
                           struct ASTnode *mid, struct ASTnode *right,

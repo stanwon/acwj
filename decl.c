@@ -1,6 +1,6 @@
-#include "1defs.h"
-#include "decl.h"
-#include "data.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 int parse_type(int type) {
   switch (type) {
@@ -35,6 +35,7 @@ struct ASTnode *function_declaration() {
   scan(&Token);
   ident();
   nameslot = addglob(Text, type, S_FUNCTION);
+  Functionid = nameslot;
   lparen();
   rparen();
 

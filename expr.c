@@ -1,9 +1,23 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 static int OpPrec[] = {0, 10, 10, 20, 20, 30, 30, 40, 40, 40, 40};
 
+struct ASTnode *funccall() {
+  struct ASTnode *tree;
+  int id;
+
+  if (-1 == (id = findglob(Text))) {
+    fatals("Undeclared function", Text);
+  }
+
+  lparen();
+  tree = binexpr(0);
+  tree = mkastunary(A_FUNCTION, Gsym[id].type, tree, id);
+  rparen();
+  return tree;
+}
 static int op_precedence(int tokentype) {
   int prec = OpPrec[tokentype];
   if (0 == prec) {
@@ -24,13 +38,20 @@ static struct ASTnode *primary() {
 
   switch (Token.token) {
   case T_INTLIT:
-    if (Token.token >= 0 && Token.token < 256) {
+    if (Token.intvalue >= 0 && Token.intvalue < 256) {
       n = mkastleaf(A_INTLIT, P_CHAR, Token.intvalue);
     } else {
       n = mkastleaf(A_INTLIT, P_INT, Token.intvalue);
     }
     break;
   case T_IDENT:
+    scan(&Token);
+    if (T_LPAREN == Token.token) {
+      return funccall();
+    }
+
+    reject_token(&Token);
+
     id = findglob(Text);
     if (-1 == id) {
       fatals("Unknown variable", Text);

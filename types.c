@@ -1,6 +1,6 @@
-#include "1defs.h"
-#include "data.h"
-#include "decl.h"
+#include "0defs.h"
+#include "1decl.h"
+#include "2data.h"
 
 int type_compatible(int *left, int *right, int onlyright) {
   if (P_VOID == *left || P_VOID == *right) {

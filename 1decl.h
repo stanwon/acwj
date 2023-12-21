@@ -1,4 +1,5 @@
 int scan(struct token *t);
+void reject_token(struct token *t);
 struct ASTnode *mkastnode(int op, int type, struct ASTnode *left,
                           struct ASTnode *mid, struct ASTnode *right,
                           int intvalue);
@@ -7,6 +8,7 @@ struct ASTnode *mkastunary(int op, int type, struct ASTnode *left,
                            int intvalue);
 
 struct ASTnode *binexpr(int ptp);
+struct ASTnode *funccall();
 
 int interpretAST(struct ASTnode *n);
 

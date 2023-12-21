@@ -1,8 +1,7 @@
-#include "1defs.h"
-#include "decl.h"
-#include <stdio.h>
+#include "0defs.h"
+#include "1decl.h"
 #define extern_
-#include "data.h"
+#include "2data.h"
 #undef extern_
 #include <errno.h>
 
