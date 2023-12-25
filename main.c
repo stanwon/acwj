@@ -15,6 +15,7 @@ char *op_str[] = {"A_ADD",     "A_SUBTRACT", "A_MULTIPLY", "A_DIVIDE",
 static void init() {
   Line = 1;
   Putback = '\n';
+  Globs = 0;
 }
 
 static void usage(char *prog) {
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
       break;
     }
   }
-
+  genpostamble();
   fclose(Outfile);
   exit(0);
 }

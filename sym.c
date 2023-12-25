@@ -2,8 +2,6 @@
 #include "1decl.h"
 #include "2data.h"
 
-static int Globs = 0;
-
 int findglob(char *s) {
   int loop;
 

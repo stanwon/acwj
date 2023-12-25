@@ -132,6 +132,8 @@ void genpreamble() { cgpreamble(); }
 
 void genfreeregs() { freeall_registers(); }
 
+void genpostamble() { cgpostamble(); }
+
 void genprintint(int reg) { cgprintint(reg); }
 
 void genglobsym(int id) { cgglobsym(id); }

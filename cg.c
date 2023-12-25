@@ -49,6 +49,9 @@ void cgfuncpreamble(int id) {
           name, name, name);
 }
 
+void cgpostamble() {
+}
+
 void cgfuncpostamble(int id) {
   cglabel(Gsym[id].endlabel);
   fputs("\tpopq	%rbp\n"
@@ -139,14 +142,6 @@ void cgglobsym(int id) {
   fprintf(Outfile, "\t.comm\t%s,%d,%d\n", Gsym[id].name, typesize, typesize);
 }
 
-int cgcompare(int r1, int r2, char *how) {
-  fprintf(Outfile, "\tcmpq\t%s, %s\n", reglist[r2], reglist[r1]);
-  fprintf(Outfile, "\t%s\t%s\n", how, breglist[r2]);
-  fprintf(Outfile, "\tandq\t$255,%s\n", reglist[r2]);
-  free_register(r1);
-  return r2;
-}
-
 int cgcompare_and_set(int ASTop, int r1, int r2) {
   if (ASTop < A_EQ || ASTop > A_GE) {
     fatal("Bad ASTop in cgcompare_and_set()");
@@ -172,13 +167,6 @@ int cgcompare_and_jump(int ASTop, int r1, int r2, int label) {
 void cglabel(int l) { fprintf(Outfile, "L%d:\n", l); }
 
 void cgjump(int l) { fprintf(Outfile, "\tjmp\tL%d\n", l); }
-
-int cgequal(int r1, int r2) { return cgcompare(r1, r2, "sete"); }
-int cgnotequal(int r1, int r2) { return cgcompare(r1, r2, "setne"); }
-int cglessthan(int r1, int r2) { return cgcompare(r1, r2, "setl"); }
-int cggreaterthan(int r1, int r2) { return cgcompare(r1, r2, "setg"); }
-int cglessequal(int r1, int r2) { return cgcompare(r1, r2, "setle"); }
-int cggreaterequal(int r1, int r2) { return cgcompare(r1, r2, "setge"); }
 
 int cgwiden(int r, int oldtype, int newtype) { return (r); }
 
