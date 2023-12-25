@@ -18,11 +18,13 @@ void genpostamble();
 void genfreeregs();
 void genprintint(int reg);
 void genglobsym(int id);
+int genprimsize(int type);
+int genlabel();
 
 void freeall_registers();
 void cgpreamble();
-void cgfuncpreamble(char *name);
-void cgfuncpostamble();
+void cgfuncpreamble(int id);
+void cgfuncpostamble(int id);
 int cgloadint(int value);
 int cgloadglob(int id);
 int cgstorglob(int reg, int id);
@@ -43,6 +45,9 @@ int cgcompare_and_jump(int ASTop, int r1, int r2, int label);
 void cglabel(int l);
 void cgjump(int l);
 int cgwiden(int r, int oldtype, int newtype);
+int cgprimsize(int type);
+int cgcall(int r, int id);
+int cgreturn(int r, int id);
 
 void statements();
 
@@ -66,6 +71,6 @@ struct ASTnode *if_statement();
 struct ASTnode *compound_statement();
 
 int findglob(char *s);
-int addglob(char *name, int type, int stype);
+int addglob(char *name, int type, int stype, int endlabel);
 
 int type_compatible(int *left, int *right, int onlyright);

@@ -3,22 +3,27 @@
 #include "2data.h"
 
 int type_compatible(int *left, int *right, int onlyright) {
-  if (P_VOID == *left || P_VOID == *right) {
-    return 0;
-  }
+  int leftsize, rightsize;
 
   if (*left == *right) {
     *left = *right = 0;
     return 1;
   }
 
-  if (P_CHAR == *left && P_INT == *right) {
+  leftsize = genprimsize(*left);
+  rightsize = genprimsize(*right);
+
+  if (0 == leftsize || 0 == rightsize) {
+    return 0;
+  }
+
+  if (leftsize < rightsize) {
     *left = A_WIDEN;
     *right = 0;
     return 1;
   }
 
-  if (P_INT == *left && P_CHAR == *right) {
+  if (leftsize > rightsize) {
     if (onlyright) {
       return 0;
     }

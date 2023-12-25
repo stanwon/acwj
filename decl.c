@@ -22,24 +22,31 @@ void var_declaration() {
   scan(&Token);
   ident();
 
-  id = addglob(Text, type, S_VARIABLE);
+  id = addglob(Text, type, S_VARIABLE, 0);
   genglobsym(id);
   semi();
 }
 
 struct ASTnode *function_declaration() {
-  struct ASTnode *tree;
-  int nameslot, type;
+  struct ASTnode *tree, *finalstmt;
+  int nameslot, type, endlabel;
 
   type = parse_type(Token.token);
   scan(&Token);
   ident();
-  nameslot = addglob(Text, type, S_FUNCTION);
+
+  endlabel  = genlabel();
+  nameslot = addglob(Text, type, S_FUNCTION, endlabel);
   Functionid = nameslot;
   lparen();
   rparen();
 
   tree = compound_statement();
 
+  if (P_VOID != type) {
+    finalstmt = (A_GLUE == tree->op) ? tree->right : tree;
+    if (NULL == finalstmt || A_RETURN != finalstmt->op)
+      fatal("No return for function with non-void type");
+  }
   return mkastunary(A_FUNCTION, type, tree, nameslot);
 }

@@ -5,6 +5,13 @@
 #undef extern_
 #include <errno.h>
 
+char *op_str[] = {"A_ADD",     "A_SUBTRACT", "A_MULTIPLY", "A_DIVIDE",
+                  "A_EQ",      "A_NE",       "A_LT",       "A_GT",
+                  "A_LE",      "A_GE",       "A_INTLIT",   "A_IDENT",
+                  "A_LVIDENT", "A_ASSIGN",   "A_PRINT",    "A_GLUE",
+                  "A_IF",      "A_WHILE",    "A_FUNCTION", "A_WIDEN",
+                  "A_RETURN",  "A_FUNCCALL"};
+
 static void init() {
   Line = 1;
   Putback = '\n';
@@ -24,6 +31,8 @@ int main(int argc, char *argv[]) {
 
   init();
 
+  // msg_op(A_IF);
+
   if (NULL == (Infile = fopen(argv[1], "r"))) {
     fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
     exit(1);
@@ -33,6 +42,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Unable to open out.s: %s\n", strerror(errno));
     exit(1);
   }
+
+  addglob("printint", P_CHAR, S_FUNCTION, 0);
 
   scan(&Token);
   genpreamble();

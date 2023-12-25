@@ -5,6 +5,7 @@
 static int freereg[4];
 static char *reglist[4] = {"%r8", "%r9", "%r10", "%r11"};
 static char *breglist[4] = {"%r8b", "%r9b", "%r10b", "%r11b"};
+static char *dreglist[4] = {"%r8d", "%r9d", "%r10d", "%r11d"};
 static char *cmplist[] = {"sete", "setne", "setl", "setg", "setle", "setge"};
 static char *invcmplist[] = {"jne", "je", "jge", "jle", "jg", "jl"};
 
@@ -33,27 +34,11 @@ static void free_register(int reg) {
 
 void cgpreamble() {
   freeall_registers();
-  fputs("\t.text\n"
-        ".LC0:\n"
-        "\t.string\t\"%d\\n\"\n"
-        "printint:\n"
-        "\tpushq\t%rbp\n"
-        "\tmovq\t%rsp, %rbp\n"
-        "\tsubq\t$16, %rsp\n"
-        "\tmovl\t%edi, -4(%rbp)\n"
-        "\tmovl\t-4(%rbp), %eax\n"
-        "\tmovl\t%eax, %esi\n"
-        "\tleaq	.LC0(%rip), %rdi\n"
-        "\tmovl	$0, %eax\n"
-        "\tcall	printf@PLT\n"
-        "\tnop\n"
-        "\tleave\n"
-        "\tret\n"
-        "\n",
-        Outfile);
+  fputs("\t.text\n", Outfile);
 }
 
-void cgfuncpreamble(char *name) {
+void cgfuncpreamble(int id) {
+  char *name = Gsym[id].name;
   fprintf(Outfile,
           "\t.text\n"
           "\t.globl\t%s\n"
@@ -64,9 +49,9 @@ void cgfuncpreamble(char *name) {
           name, name, name);
 }
 
-void cgfuncpostamble() {
-  fputs("\tmovl	$0, %eax\n"
-        "\tpopq	%rbp\n"
+void cgfuncpostamble(int id) {
+  cglabel(Gsym[id].endlabel);
+  fputs("\tpopq	%rbp\n"
         "\tret\n",
         Outfile);
 }
@@ -80,10 +65,20 @@ int cgloadint(int value) {
 int cgloadglob(int id) {
   int r = alloc_register();
 
-  if (Gsym[id].type == P_INT)
-    fprintf(Outfile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
-  else
+  switch (Gsym[id].type) {
+  case P_CHAR:
     fprintf(Outfile, "\tmovzbq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
+    break;
+  case P_INT:
+    fprintf(Outfile, "\tmovzbl\t%s(\%%rip), %s\n", Gsym[id].name, dreglist[r]);
+    break;
+  case P_LONG:
+    fprintf(Outfile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
+    break;
+  default:
+    fatald("Bad type in cgloadglob:", Gsym[id].type);
+  }
+
   return r;
 }
 
@@ -121,18 +116,27 @@ void cgprintint(int r) {
 }
 
 int cgstorglob(int r, int id) {
-  if (Gsym[id].type == P_INT)
-    fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
-  else
+  switch (Gsym[id].type) {
+  case P_CHAR:
     fprintf(Outfile, "\tmovb\t%s, %s(\%%rip)\n", breglist[r], Gsym[id].name);
+    break;
+  case P_INT:
+    fprintf(Outfile, "\tmovl\t%s, %s(\%%rip)\n", dreglist[r], Gsym[id].name);
+    break;
+  case P_LONG:
+    fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
+    break;
+  default:
+    fatald("Bad type in cgstorglob:", Gsym[id].type);
+  }
   return (r);
 }
 
 void cgglobsym(int id) {
-  if (Gsym[id].type == P_INT)
-    fprintf(Outfile, "\t.comm\t%s,8,8\n", Gsym[id].name);
-  else
-    fprintf(Outfile, "\t.comm\t%s,1,1\n", Gsym[id].name);
+  int typesize;
+
+  typesize = cgprimsize(Gsym[id].type);
+  fprintf(Outfile, "\t.comm\t%s,%d,%d\n", Gsym[id].name, typesize, typesize);
 }
 
 int cgcompare(int r1, int r2, char *how) {
@@ -176,6 +180,38 @@ int cggreaterthan(int r1, int r2) { return cgcompare(r1, r2, "setg"); }
 int cglessequal(int r1, int r2) { return cgcompare(r1, r2, "setle"); }
 int cggreaterequal(int r1, int r2) { return cgcompare(r1, r2, "setge"); }
 
-int cgwiden(int r, int oldtype, int newtype) {
-  return (r);
+int cgwiden(int r, int oldtype, int newtype) { return (r); }
+
+static int psize[] = {0, 0, 1, 4, 8};
+int cgprimsize(int type) {
+  if (P_NONE > type || P_LONG < type) {
+    fatal("Bad type in cgprimsize()");
+  }
+  return psize[type];
+}
+
+int cgcall(int r, int id) {
+  int outr = alloc_register();
+  fprintf(Outfile, "\tmovq\t%s, %%rdi\n", reglist[r]);
+  fprintf(Outfile, "\tcall\t%s\n", Gsym[id].name);
+  fprintf(Outfile, "\tmovq\t%%rax, %s\n", reglist[outr]);
+  free_register(r);
+  return (outr);
+}
+
+int cgreturn(int r, int id) {
+  switch (Gsym[id].type) {
+  case P_CHAR:
+    fprintf(Outfile, "\tmovzbl\t%s, %%eax\n", breglist[r]);
+    break;
+  case P_INT:
+    fprintf(Outfile, "\tmovl\t%s, %%eax\n", dreglist[r]);
+    break;
+  case P_LONG:
+    fprintf(Outfile, "\tmovq\t%s, %%rax\n", reglist[r]);
+    break;
+  default:
+    fatald("Bad function type in cgreturn:", Gsym[id].type);
+  }
+  cgjump(Gsym[id].endlabel);
 }

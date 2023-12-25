@@ -2,7 +2,7 @@
 #include "1decl.h"
 #include "2data.h"
 
-static int label(void) {
+int genlabel(void) {
   static int id = 1;
   return (id++);
 }
@@ -10,9 +10,9 @@ static int label(void) {
 static int genIF(struct ASTnode *n) {
   int Lfalse, Lend;
 
-  Lfalse = label();
+  Lfalse = genlabel();
   if (n->right) {
-    Lend = label();
+    Lend = genlabel();
   }
 
   genAST(n->left, Lfalse, n->op);
@@ -39,8 +39,8 @@ static int genIF(struct ASTnode *n) {
 static int genWHILE(struct ASTnode *n) {
   int Lstart, Lend;
 
-  Lstart = label();
-  Lend = label();
+  Lstart = genlabel();
+  Lend = genlabel();
   cglabel(Lstart);
 
   genAST(n->left, Lend, n->op);
@@ -70,9 +70,9 @@ int genAST(struct ASTnode *n, int reg, int parentASTop) {
     genfreeregs();
     return NOREG;
   case A_FUNCTION:
-    cgfuncpreamble(Gsym[n->v.id].name);
+    cgfuncpreamble(n->v.id);
     genAST(n->left, NOREG, n->op);
-    cgfuncpostamble();
+    cgfuncpostamble(n->v.id);
     return NOREG;
   }
 
@@ -118,6 +118,11 @@ int genAST(struct ASTnode *n, int reg, int parentASTop) {
     return NOREG;
   case A_WIDEN:
     return cgwiden(leftreg, n->left->type, n->type);
+  case A_RETURN:
+    cgreturn(leftreg, Functionid);
+    return NOREG;
+  case A_FUNCCALL:
+    return cgcall(leftreg, n->v.id);
   default:
     fatald("Unknown AST operator", n->op);
   }
@@ -130,3 +135,5 @@ void genfreeregs() { freeall_registers(); }
 void genprintint(int reg) { cgprintint(reg); }
 
 void genglobsym(int id) { cgglobsym(id); }
+
+int genprimsize(int type) { return cgprimsize(type); }

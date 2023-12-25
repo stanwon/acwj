@@ -11,3 +11,4 @@ extern_ FILE *Infile;
 extern_ FILE *Outfile;
 extern_ char Text[TEXTLEN+1];
 extern_ struct symtable Gsym[NSYMBOLS];
+extern_ char *op_str[];

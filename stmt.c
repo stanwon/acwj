@@ -24,7 +24,7 @@ static struct ASTnode *return_statement() {
   }
 
   if (returntype) {
-    tree = mkastunary(returntype, functype, tree, 0);
+    tree = mkastunary(returntype, Gsym[Functionid].type, tree, 0);
   }
 
   tree = mkastunary(A_RETURN, P_NONE, tree, 0);
@@ -186,7 +186,8 @@ struct ASTnode *compound_statement() {
   while (1) {
     tree = single_statement();
 
-    if (NULL != tree && (A_PRINT == tree->op || A_ASSIGN == tree->op)) {
+    if (NULL != tree && (A_PRINT == tree->op || A_ASSIGN == tree->op ||
+                         A_RETURN == tree->op || A_FUNCCALL == tree->op)) {
       semi();
     }
 

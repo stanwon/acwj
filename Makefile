@@ -1,10 +1,10 @@
-SRC = *.c
+SRC=*.c
 
 all: out
 	@./out
 
 out: out.s
-	@cc -o out $<
+	@cc -o out $< lib/printint.c
 
 out.s: comp input
 	@./$< input

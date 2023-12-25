@@ -14,7 +14,7 @@ struct ASTnode *funccall() {
 
   lparen();
   tree = binexpr(0);
-  tree = mkastunary(A_FUNCTION, Gsym[id].type, tree, id);
+  tree = mkastunary(A_FUNCCALL, Gsym[id].type, tree, id);
   rparen();
   return tree;
 }

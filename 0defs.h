@@ -8,7 +8,9 @@
 #define NOREG -1 // Use NOREG when the AST generation
 
 #define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count++)
-#define msg_op(op) printf("%s()<%d>: op: %d\n", __FUNCTION__, __LINE__, op)
+#define msg_s(s) printf("%s()<%d>: %s\n", __FUNCTION__, __LINE__, s)
+#define msg_op(op) printf("%s()<%d>: op: %s\n", __FUNCTION__, __LINE__, op_str[op-1])
+#define msg_ptype(ptype) printf("%s()<%d>: ptype: %d\n", __FUNCTION__, __LINE__, ptype)
 
 enum {
   // T for token
@@ -80,6 +82,9 @@ enum {
   A_FUNCTION,
   A_WIDEN,
   A_RETURN,
+  A_FUNCCALL,
+
+  A_BUTT,
 };
 
 struct ASTnode {
@@ -104,6 +109,7 @@ struct symtable {
   char *name;
   int type;  // primitive type
   int stype; // structural type
+  int endlabel;
 };
 
 enum {
@@ -112,4 +118,5 @@ enum {
   P_VOID,
   P_CHAR,
   P_INT,
+  P_LONG,
 };
