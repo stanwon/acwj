@@ -64,8 +64,10 @@ void fatals(char *s1, char *s2);
 void fatalc(char *s, int c);
 
 // decl.c
-void var_declaration();
-struct ASTnode *function_declaration();
+void var_declaration(int type);
+int parse_type();
+void global_declarations();
+struct ASTnode *function_declaration(int type);
 struct ASTnode *assignment_statement();
 struct ASTnode *print_statement();
 struct ASTnode *if_statement();

@@ -52,6 +52,7 @@ enum {
   T_RETURN,
   T_AMPER,
   T_LOGAND,
+  T_COMMA,
 };
 
 struct token {

@@ -14,13 +14,16 @@ int parse_type() {
   case T_VOID:
     type = P_VOID;
     break;
+  case T_LONG:
+    type = P_LONG;
+    break;
   default:
     fatald("Illegal type, token", Token.token);
   }
 
   while (1) {
     scan(&Token);
-    if (T_STAR != Token.token){
+    if (T_STAR != Token.token) {
       break;
     }
     type = pointer_to(type);
@@ -29,23 +32,51 @@ int parse_type() {
   return type;
 }
 
-void var_declaration() {
-  int id, type;
+void global_declarations() {
+  struct ASTnode *tree;
+  int type;
 
-  type = parse_type();
-  ident();
+  while (1) {
+    type = parse_type();
+    ident();
 
-  id = addglob(Text, type, S_VARIABLE, 0);
-  genglobsym(id);
-  semi();
+    if (T_LPAREN == Token.token) {
+      tree = function_declaration(type);
+      genAST(tree, NOREG, 0);
+    } else {
+      var_declaration(type);
+    }
+
+    if (T_EOF == Token.token) {
+      break;
+    }
+  }
 }
 
-struct ASTnode *function_declaration() {
-  struct ASTnode *tree, *finalstmt;
-  int nameslot, type, endlabel;
+void var_declaration(int type) {
+  int id;
 
-  type = parse_type();
-  ident();
+  while (1) {
+    id = addglob(Text, type, S_VARIABLE, 0);
+    genglobsym(id);
+
+    if (T_SEMI == Token.token) {
+      scan(&Token);
+      return;
+    }
+
+    if (T_COMMA == Token.token) {
+      scan(&Token);
+      ident();
+      continue;
+    }
+    fatal("Missing , or ; after identifier");
+  }
+}
+
+struct ASTnode *function_declaration(int type) {
+  struct ASTnode *tree, *finalstmt;
+  int nameslot, endlabel;
 
   endlabel = genlabel();
   nameslot = addglob(Text, type, S_FUNCTION, endlabel);
