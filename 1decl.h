@@ -1,5 +1,8 @@
+// scan.c
 int scan(struct token *t);
 void reject_token(struct token *t);
+
+// tree.c
 struct ASTnode *mkastnode(int op, int type, struct ASTnode *left,
                           struct ASTnode *mid, struct ASTnode *right,
                           int intvalue);
@@ -7,11 +10,11 @@ struct ASTnode *mkastleaf(int op, int type, int intvalue);
 struct ASTnode *mkastunary(int op, int type, struct ASTnode *left,
                            int intvalue);
 
+// expr.c
 struct ASTnode *binexpr(int ptp);
 struct ASTnode *funccall();
 
-int interpretAST(struct ASTnode *n);
-
+// gen.c
 int genAST(struct ASTnode *n, int reg, int parentASTop);
 void genpreamble();
 void genpostamble();
@@ -21,6 +24,7 @@ void genglobsym(int id);
 int genprimsize(int type);
 int genlabel();
 
+// cg.c
 void freeall_registers();
 void cgpreamble();
 void cgfuncpreamble(int id);
@@ -43,9 +47,10 @@ int cgwiden(int r, int oldtype, int newtype);
 int cgprimsize(int type);
 int cgcall(int r, int id);
 int cgreturn(int r, int id);
+int cgaddress(int id);
+int cgderef(int r, int type);
 
-void statements();
-
+// misc.c
 void match(int t, char *what);
 void semi();
 void ident();
@@ -58,6 +63,7 @@ void fatald(char *s, int d);
 void fatals(char *s1, char *s2);
 void fatalc(char *s, int c);
 
+// decl.c
 void var_declaration();
 struct ASTnode *function_declaration();
 struct ASTnode *assignment_statement();
@@ -65,7 +71,11 @@ struct ASTnode *print_statement();
 struct ASTnode *if_statement();
 struct ASTnode *compound_statement();
 
+// sym.c
 int findglob(char *s);
 int addglob(char *name, int type, int stype, int endlabel);
 
+// types.c
 int type_compatible(int *left, int *right, int onlyright);
+int pointer_to(int type);
+int value_at(int type);

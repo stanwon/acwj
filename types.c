@@ -2,6 +2,36 @@
 #include "1decl.h"
 #include "2data.h"
 
+int pointer_to(int type) {
+  switch (type) {
+  case P_VOID:
+    return P_VOIDPTR;
+  case P_CHAR:
+    return P_CHARPTR;
+  case P_INT:
+    return P_INTPTR;
+  case P_LONG:
+    return P_LONGPTR;
+  default:
+    fatald("Unrecognised in pointer_to: type", type);
+  }
+}
+
+int value_at(int type) {
+  switch (type) {
+  case P_VOIDPTR:
+    return P_VOID;
+  case P_CHARPTR:
+    return P_CHAR;
+  case P_INTPTR:
+    return P_INT;
+  case P_LONGPTR:
+    return P_LONG;
+  default:
+    fatald("Unrecognised in value_at: type", type);
+  }
+}
+
 int type_compatible(int *left, int *right, int onlyright) {
   int leftsize, rightsize;
 

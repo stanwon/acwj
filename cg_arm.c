@@ -84,7 +84,6 @@ void cgfuncpreamble(int id) {
           name, name, name);
 }
 
-
 void cgpostamble() {
   fprintf(Outfile, ".L2:\n");
   for (int i = 0; i < Globs; i++) {
@@ -174,10 +173,13 @@ int cgstorglob(int r, int id) {
     break;
   case P_INT:
   case P_LONG:
+  case P_CHARPTR:
+  case P_INTPTR:
+  case P_LONGPTR:
     fprintf(Outfile, "\tstr\t%s, [r3]\n", reglist[r]);
     break;
   default:
-    fatald("Bad type in cgloadglob:", Gsym[id].type);
+    fatald("Bad type in cgstoreglob", Gsym[id].type);
   }
 
   return (r);

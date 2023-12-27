@@ -61,8 +61,7 @@ static int scanident(int c, char *buf, int lim) {
 
   while (isalpha(c) || isdigit(c) || '_' == c) {
     if (lim - 1 == i) {
-      printf("identifier too long on line %d\n", Line);
-      exit(1);
+      fatal("Identifier too long");
     } else if (i < lim - 1) {
       buf[i++] = c;
     }
@@ -182,14 +181,14 @@ int scan(struct token *t) {
     }
     break;
   case '!':
-    if ((c = next() == '=')) {
+    if ((c = next()) == '=') {
       t->token = T_NE;
     } else {
       fatalc("Unrecognised character", c);
     }
     break;
   case '<':
-    if ((c = next() == '=')) {
+    if ((c = next()) == '=') {
       t->token = T_LE;
     } else {
       putback(c);
@@ -197,11 +196,19 @@ int scan(struct token *t) {
     }
     break;
   case '>':
-    if ((c = next() == '=')) {
+    if ((c = next()) == '=') {
       t->token = T_GE;
     } else {
       putback(c);
       t->token = T_GT;
+    }
+    break;
+  case '&':
+    if ((c = next()) == '&') {
+      t->token = T_LOGAND;
+    } else {
+      putback(c);
+      t->token = T_AMPER;
     }
     break;
   default:

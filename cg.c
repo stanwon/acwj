@@ -49,8 +49,7 @@ void cgfuncpreamble(int id) {
           name, name, name);
 }
 
-void cgpostamble() {
-}
+void cgpostamble() {}
 
 void cgfuncpostamble(int id) {
   cglabel(Gsym[id].endlabel);
@@ -76,10 +75,13 @@ int cgloadglob(int id) {
     fprintf(Outfile, "\tmovzbl\t%s(\%%rip), %s\n", Gsym[id].name, dreglist[r]);
     break;
   case P_LONG:
+  case P_CHARPTR:
+  case P_INTPTR:
+  case P_LONGPTR:
     fprintf(Outfile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
     break;
   default:
-    fatald("Bad type in cgloadglob:", Gsym[id].type);
+    fatald("Bad type in cgloadglob", Gsym[id].type);
   }
 
   return r;
@@ -127,10 +129,13 @@ int cgstorglob(int r, int id) {
     fprintf(Outfile, "\tmovl\t%s, %s(\%%rip)\n", dreglist[r], Gsym[id].name);
     break;
   case P_LONG:
+  case P_CHARPTR:
+  case P_INTPTR:
+  case P_LONGPTR:
     fprintf(Outfile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
     break;
   default:
-    fatald("Bad type in cgstorglob:", Gsym[id].type);
+    fatald("Bad type in cgstorglob", Gsym[id].type);
   }
   return (r);
 }
@@ -170,9 +175,9 @@ void cgjump(int l) { fprintf(Outfile, "\tjmp\tL%d\n", l); }
 
 int cgwiden(int r, int oldtype, int newtype) { return (r); }
 
-static int psize[] = {0, 0, 1, 4, 8};
+static int psize[] = { 0, 0, 1, 4, 8, 8, 8, 8 };
 int cgprimsize(int type) {
-  if (P_NONE > type || P_LONG < type) {
+  if (P_NONE > type || P_LONGPTR < type) {
     fatal("Bad type in cgprimsize()");
   }
   return psize[type];
@@ -199,7 +204,27 @@ int cgreturn(int r, int id) {
     fprintf(Outfile, "\tmovq\t%s, %%rax\n", reglist[r]);
     break;
   default:
-    fatald("Bad function type in cgreturn:", Gsym[id].type);
+    fatald("Bad function type in cgreturn", Gsym[id].type);
   }
   cgjump(Gsym[id].endlabel);
+}
+
+int cgaddress(int id) {
+  int r = alloc_register();
+
+  fprintf(Outfile, "\tleaq\t%s(%%rip), %s\n", Gsym[id].name, reglist[r]);
+  return (r);
+}
+
+int cgderef(int r, int type) {
+  switch (type) {
+  case P_CHARPTR:
+    fprintf(Outfile, "\tmovzbq\t(%s), %s\n", reglist[r], reglist[r]);
+    break;
+  case P_INTPTR:
+  case P_LONGPTR:
+    fprintf(Outfile, "\tmovq\t(%s), %s\n", reglist[r], reglist[r]);
+    break;
+  }
+  return (r);
 }
