@@ -81,7 +81,7 @@ struct ASTnode *prefix() {
   case T_STAR:
     scan(&Token);
     tree = prefix();
-    if (A_IDENT != tree->op) {
+    if (A_IDENT != tree->op && A_DEREF != tree->op) {
       fatal("* operator must be followed by an identifier");
     }
     tree = mkastunary(A_DEREF, value_at(tree->type), tree, 0);
@@ -94,8 +94,9 @@ struct ASTnode *prefix() {
 
 struct ASTnode *binexpr(int ptp) {
   struct ASTnode *left, *right;
+  struct ASTnode *ltemp, *rtemp;
+  int ASTop;
   int tokentype;
-  int lefttype, righttype;
 
   left = prefix();
 
@@ -109,17 +110,19 @@ struct ASTnode *binexpr(int ptp) {
 
     right = binexpr(OpPrec[tokentype]);
 
-    lefttype = left->type;
-    righttype = right->type;
-    if (!type_compatible(&lefttype, &righttype, 0)) {
-      fatal("Incompatible types");
+    ASTop = arithop(tokentype);
+
+    ltemp = modify_type(left, right->type, ASTop);
+    rtemp = modify_type(right, left->type, ASTop);
+    if (NULL == ltemp && NULL == rtemp) {
+      fatal("Incompatible types in binary expression");
     }
 
-    if (lefttype) {
-      left = mkastunary(lefttype, right->type, left, 0);
+    if (NULL != ltemp) {
+      left = ltemp;
     }
-    if (righttype) {
-      right = mkastunary(righttype, left->type, right, 0);
+    if (NULL != rtemp) {
+      right = rtemp;
     }
 
     left = mkastnode(arithop(tokentype), left->type, left, NULL, right, 0);

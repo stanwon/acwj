@@ -30,7 +30,7 @@ void cgpreamble();
 void cgfuncpreamble(int id);
 void cgpostamble();
 void cgfuncpostamble(int id);
-int cgloadint(int value);
+int cgloadint(int value, int type);
 int cgloadglob(int id);
 int cgstorglob(int reg, int id);
 void cgglobsym(int id);
@@ -49,6 +49,7 @@ int cgcall(int r, int id);
 int cgreturn(int r, int id);
 int cgaddress(int id);
 int cgderef(int r, int type);
+int cgshlconst(int r, int val);
 
 // misc.c
 void match(int t, char *what);
@@ -78,6 +79,7 @@ int findglob(char *s);
 int addglob(char *name, int type, int stype, int endlabel);
 
 // types.c
-int type_compatible(int *left, int *right, int onlyright);
+struct ASTnode *modify_type(struct ASTnode *tree, int rtype, int op);
+// int type_compatible(int *left, int *right, int onlyright);
 int pointer_to(int type);
 int value_at(int type);

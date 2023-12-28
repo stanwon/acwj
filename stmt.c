@@ -17,14 +17,9 @@ static struct ASTnode *return_statement() {
 
   tree = binexpr(0);
 
-  returntype = tree->type;
-  functype = Gsym[Functionid].type;
-  if (!type_compatible(&returntype, &functype, 1)) {
-    fatal("Incompatible types");
-  }
-
-  if (returntype) {
-    tree = mkastunary(returntype, Gsym[Functionid].type, tree, 0);
+  tree = modify_type(tree, Gsym[Functionid].type, 0);
+  if (NULL == tree) {
+    fatal("Incompatible type to print");
   }
 
   tree = mkastunary(A_RETURN, P_NONE, tree, 0);
@@ -36,20 +31,14 @@ static struct ASTnode *return_statement() {
 
 struct ASTnode *print_statement() {
   struct ASTnode *tree;
-  int lefttype, righttype;
 
   match(T_PRINT, "print");
   tree = binexpr(0);
 
-  lefttype = P_INT;
-  righttype = tree->type;
+  tree = modify_type(tree, P_INT, 0);
 
-  if (!type_compatible(&lefttype, &righttype, 0)) {
-    fatal("Incompatible types");
-  }
-
-  if (righttype) {
-    tree = mkastunary(righttype, P_INT, tree, 0);
+  if (NULL == tree) {
+    fatal("Incompatible type to print");
   }
 
   tree = mkastunary(A_PRINT, P_NONE, tree, 0);
@@ -58,7 +47,6 @@ struct ASTnode *print_statement() {
 
 struct ASTnode *assignment_statement() {
   struct ASTnode *left, *right, *tree;
-  int lefttype, righttype;
   int id;
 
   ident();
@@ -76,15 +64,12 @@ struct ASTnode *assignment_statement() {
 
   left = binexpr(0);
 
-  lefttype = left->type;
-  righttype = right->type;
-  if (!type_compatible(&lefttype, &righttype, 1)) {
-    fatal("Incompatible types");
+  left = modify_type(left, right->type, 0);
+
+  if (NULL == left) {
+    fatal("Incompatible expression in assignment");
   }
 
-  if (lefttype) {
-    left = mkastunary(lefttype, right->type, left, 0);
-  }
   tree = mkastnode(A_ASSIGN, P_INT, left, NULL, right, 0);
 
   return tree;

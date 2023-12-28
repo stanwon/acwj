@@ -9,9 +9,11 @@
 
 #define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count++)
 #define msg_s(s) printf("%s()<%d>: %s\n", __FUNCTION__, __LINE__, s)
-#define msg_op(op) printf("%s()<%d>: op: %s\n", __FUNCTION__, __LINE__, op_str[op-1])
+#define msg_op(op)                                                             \
+  printf("%s()<%d>: op: %s\n", __FUNCTION__, __LINE__, op_str[op - 1])
 #define msg_int(i) printf("%s()<%d>: i: %d\n", __FUNCTION__, __LINE__, i)
-#define msg_ptype(ptype) printf("%s()<%d>: ptype: %d\n", __FUNCTION__, __LINE__, ptype)
+#define msg_ptype(ptype)                                                       \
+  printf("%s()<%d>: ptype: %d\n", __FUNCTION__, __LINE__, ptype)
 
 enum {
   // T for token
@@ -87,8 +89,9 @@ enum {
   A_WIDEN,
   A_RETURN,
   A_FUNCCALL,
-  A_ADDR,
   A_DEREF,
+  A_ADDR,
+  A_SCALE,
 
   A_BUTT,
 };
@@ -102,6 +105,7 @@ struct ASTnode {
   union {
     int intvalue;
     int id;
+    int size;
   } v;
 };
 

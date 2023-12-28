@@ -2,6 +2,21 @@
 #include "1decl.h"
 #include "2data.h"
 
+int inttype(int type) {
+  if (P_CHAR == type || P_INT == type || P_LONG == type) {
+    return 1;
+  }
+  return 0;
+}
+
+int ptrtype(int type) {
+  if (P_CHARPTR == type || P_INTPTR == type || P_LONGPTR == type ||
+      P_VOIDPTR == type) {
+    return 1;
+  }
+  return 0;
+}
+
 int pointer_to(int type) {
   switch (type) {
   case P_VOID:
@@ -30,6 +45,47 @@ int value_at(int type) {
   default:
     fatald("Unrecognised in value_at: type", type);
   }
+}
+
+struct ASTnode *modify_type(struct ASTnode *tree, int rtype, int op) {
+  int ltype;
+  int lsize, rsize;
+
+  ltype = tree->type;
+
+  if (inttype(ltype) && inttype(rtype)) {
+    if (ltype == rtype) {
+      return tree;
+    }
+
+    lsize = genprimsize(ltype);
+    rsize = genprimsize(rtype);
+
+    if (lsize > rsize) {
+      return NULL;
+    }
+
+    if (rsize > lsize) {
+      return mkastunary(A_WIDEN, rtype, tree, 0);
+    }
+  }
+
+  if (ptrtype(ltype)) {
+    if (0 == op && ltype == rtype) {
+      return tree;
+    }
+  }
+
+  if (A_ADD == op || A_SUBTRACT == op) {
+    if (inttype(ltype) && ptrtype(rtype)) {
+      rsize = genprimsize(value_at(rtype));
+      if (rsize > 1) {
+        return mkastunary(A_SCALE, rtype, tree, rsize);
+      }
+    }
+  }
+
+  return NULL;
 }
 
 int type_compatible(int *left, int *right, int onlyright) {
