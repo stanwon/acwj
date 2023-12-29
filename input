@@ -1,8 +1,8 @@
+int a;
+int b[25];
+
 int main() {
-  int a;
-  int b;
-  a = b = 34;
+  b[3]= 12; a= b[3];
   printint(a);
-  printint(b);
-  return (0);
+  return(0);
 }

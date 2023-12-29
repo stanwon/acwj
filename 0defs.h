@@ -52,6 +52,8 @@ enum {
   T_AMPER,
   T_LOGAND,
   T_COMMA,
+  T_LBRACKET,
+  T_RBRACKET,
 };
 
 struct token {
@@ -107,6 +109,7 @@ enum {
   // S for structural
   S_VARIABLE,
   S_FUNCTION,
+  S_ARRAY,
 };
 
 struct symtable {
@@ -114,6 +117,7 @@ struct symtable {
   int type;  // primitive type
   int stype; // structural type
   int endlabel;
+  int size;
 };
 
 enum {

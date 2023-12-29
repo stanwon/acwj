@@ -37,3 +37,11 @@
         生成Lend标签
 
 
+# 其他
+    * expr.c
+        - 生成表达式AST节点
+            - primary函数：生成INTLIT和IDENT节点
+    * scan.c
+        - 扫描token
+    * stmt.c
+        - 按语句生成AST节树

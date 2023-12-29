@@ -14,6 +14,7 @@ void dumpAST(struct ASTnode *n, int label, int level);
 // expr.c
 struct ASTnode *binexpr(int ptp);
 struct ASTnode *funccall();
+struct ASTnode *array_access();
 
 // gen.c
 int genAST(struct ASTnode *n, int reg, int parentASTop);
@@ -76,10 +77,10 @@ struct ASTnode *compound_statement();
 
 // sym.c
 int findglob(char *s);
-int addglob(char *name, int type, int stype, int endlabel);
+int addglob(char *name, int type, int stype, int endlabel, int size);
 
 // types.c
 struct ASTnode *modify_type(struct ASTnode *tree, int rtype, int op);
-// int type_compatible(int *left, int *right, int onlyright);
+int inttype(int type);
 int pointer_to(int type);
 int value_at(int type);

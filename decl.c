@@ -61,19 +61,32 @@ void var_declaration(int type) {
   int id;
 
   while (1) {
-    id = addglob(Text, type, S_VARIABLE, 0);
-    genglobsym(id);
+    if (T_LBRACKET == Token.token) {
+      scan(&Token);
 
-    if (T_SEMI == Token.token) {
+      if (T_INTLIT == Token.token) {
+        id = addglob(Text, pointer_to(type), S_ARRAY, 0, Token.intvalue);
+        genglobsym(id);
+      }
+
+      scan(&Token);
+      match(T_RBRACKET, "]");
+    } else {
+      id = addglob(Text, type, S_VARIABLE, 0, 1);
+      genglobsym(id);
+    }
+
+    if (Token.token == T_SEMI) {
       scan(&Token);
       return;
     }
 
-    if (T_COMMA == Token.token) {
+    if (Token.token == T_COMMA) {
       scan(&Token);
       ident();
       continue;
     }
+
     fatal("Missing , or ; after identifier");
   }
 }
@@ -83,7 +96,7 @@ struct ASTnode *function_declaration(int type) {
   int nameslot, endlabel;
 
   endlabel = genlabel();
-  nameslot = addglob(Text, type, S_FUNCTION, endlabel);
+  nameslot = addglob(Text, type, S_FUNCTION, endlabel, 0);
   Functionid = nameslot;
   lparen();
   rparen();
