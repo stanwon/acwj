@@ -29,52 +29,6 @@ static struct ASTnode *return_statement() {
   return (tree);
 }
 
-struct ASTnode *print_statement() {
-  struct ASTnode *tree;
-
-  match(T_PRINT, "print");
-  tree = binexpr(0);
-
-  tree = modify_type(tree, P_INT, 0);
-
-  if (NULL == tree) {
-    fatal("Incompatible type to print");
-  }
-
-  tree = mkastunary(A_PRINT, P_NONE, tree, 0);
-  return (tree);
-}
-
-struct ASTnode *assignment_statement() {
-  struct ASTnode *left, *right, *tree;
-  int id;
-
-  ident();
-
-  if (T_LPAREN == Token.token) {
-    return (funccall());
-  }
-
-  if (-1 == (id = findglob(Text))) {
-    fatals("Undeclared variable", Text);
-  }
-  right = mkastleaf(A_LVIDENT, Gsym[id].type, id);
-
-  match(T_ASSIGN, "=");
-
-  left = binexpr(0);
-
-  left = modify_type(left, right->type, 0);
-
-  if (NULL == left) {
-    fatal("Incompatible expression in assignment");
-  }
-
-  tree = mkastnode(A_ASSIGN, P_INT, left, NULL, right, 0);
-
-  return tree;
-}
-
 struct ASTnode *if_statement() {
   struct ASTnode *conAST, *trueAST, *falseAST = NULL;
 
@@ -143,8 +97,6 @@ struct ASTnode *single_statement() {
   int type;
 
   switch (Token.token) {
-  case T_PRINT:
-    return print_statement();
   case T_INT:
   case T_CHAR:
   case T_LONG:
@@ -152,8 +104,6 @@ struct ASTnode *single_statement() {
     ident();
     var_declaration(type);
     return NULL;
-  case T_IDENT:
-    return assignment_statement();
   case T_IF:
     return if_statement();
   case T_WHILE:
@@ -163,7 +113,7 @@ struct ASTnode *single_statement() {
   case T_RETURN:
     return return_statement();
   default:
-    fatald("Syntax error, token", Token.token);
+    return binexpr(0);
   }
 }
 
@@ -176,8 +126,8 @@ struct ASTnode *compound_statement() {
   while (1) {
     tree = single_statement();
 
-    if (NULL != tree && (A_PRINT == tree->op || A_ASSIGN == tree->op ||
-                         A_RETURN == tree->op || A_FUNCCALL == tree->op)) {
+    if (NULL != tree && (A_ASSIGN == tree->op || A_RETURN == tree->op ||
+                         A_FUNCCALL == tree->op)) {
       semi();
     }
 

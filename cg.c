@@ -159,7 +159,7 @@ void cgglobsym(int id) {
     fprintf(Outfile, "%s:\t.quad\t0\n", Gsym[id].name);
     break;
   default:
-    fatald("Unknown typesize in cgglobsym: ", typesize);
+    fatald("Unknown typesize in cgglobsym", typesize);
   }
 }
 
@@ -248,4 +248,21 @@ int cgderef(int r, int type) {
 int cgshlconst(int r, int val) {
   fprintf(Outfile, "\tsalq\t$%d, %s\n", val, reglist[r]);
   return (r);
+}
+
+int cgstorderef(int r1, int r2, int type) {
+  switch (type) {
+  case P_CHAR:
+    fprintf(Outfile, "\tmovb\t%s, (%s)\n", breglist[r1], reglist[r2]);
+    break;
+  case P_INT:
+    fprintf(Outfile, "\tmovq\t%s, (%s)\n", reglist[r1], reglist[r2]);
+    break;
+  case P_LONG:
+    fprintf(Outfile, "\tmovq\t%s, (%s)\n", reglist[r1], reglist[r2]);
+    break;
+  default:
+    fatald("Can't cgstoderef on type:", type);
+  }
+  return (r1);
 }

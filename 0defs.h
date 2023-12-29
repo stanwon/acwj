@@ -6,6 +6,7 @@
 #define TEXTLEN 512
 #define NSYMBOLS 1024
 #define NOREG -1 // Use NOREG when the AST generation
+#define NOLABEL	 0		// Use NOLABEL when we have no label to
 
 #define msg() printf("%s()<%d>: %d\n", __FUNCTION__, __LINE__, Count++)
 #define msg_s(s) printf("%s()<%d>: %s\n", __FUNCTION__, __LINE__, s)
@@ -17,32 +18,28 @@
 
 enum {
   // T for token
-  T_EOF = 0,
+  T_EOF,
 
-  T_PLUS = 1,
+  T_ASSIGN,
+  T_PLUS,
   T_MINUS,
   T_STAR,
   T_SLASH,
 
-  T_EQ = 5,
+  T_EQ,
   T_NE,
   T_LT,
   T_GT,
   T_LE,
   T_GE,
 
-  T_INTLIT = 11,
-
-  T_SEMI = 12,
-  T_ASSIGN,
+  T_INTLIT,
+  T_SEMI,
   T_IDENT,
-
-  T_LBRACE = 15,
+  T_LBRACE,
   T_RBRACE,
   T_LPAREN,
   T_RPAREN,
-
-  T_PRINT = 19,
   T_INT,
   T_IF,
   T_ELSE,
@@ -64,24 +61,20 @@ struct token {
 
 enum {
   // A for abstract
-  A_ADD = 1,
+  A_ASSIGN = 1,
+  A_ADD,
   A_SUBTRACT,
   A_MULTIPLY,
   A_DIVIDE,
 
-  A_EQ = 5,
+  A_EQ,
   A_NE,
   A_LT,
   A_GT,
   A_LE,
   A_GE,
-
-  A_INTLIT = 11,
-
-  A_IDENT = 12,
-  A_LVIDENT,
-  A_ASSIGN,
-  A_PRINT,
+  A_INTLIT,
+  A_IDENT,
   A_GLUE,
   A_IF,
   A_WHILE,
@@ -99,6 +92,7 @@ enum {
 struct ASTnode {
   int op;
   int type;
+  int rvalue;
   struct ASTnode *left;
   struct ASTnode *mid;
   struct ASTnode *right;

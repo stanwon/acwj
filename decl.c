@@ -42,6 +42,10 @@ void global_declarations() {
 
     if (T_LPAREN == Token.token) {
       tree = function_declaration(type);
+      if (O_dumpAST) {
+        dumpAST(tree, NOLABEL, 0);
+        fprintf(stdout, "\n\n");
+      }
       genAST(tree, NOREG, 0);
     } else {
       var_declaration(type);

@@ -2,7 +2,20 @@
 #include "1decl.h"
 #include "2data.h"
 
-static int OpPrec[] = {0, 10, 10, 20, 20, 30, 30, 40, 40, 40, 40};
+static int OpPrec[] = {
+    0,  10,        // T_EOF,  T_ASSIGN
+    20, 20,        // T_PLUS, T_MINUS
+    30, 30,        // T_STAR, T_SLASH
+    40, 40,        // T_EQ, T_NE
+    50, 50, 50, 50 // T_LT, T_GT, T_LE, T_GE
+};
+
+static int rightassoc(int tokentype) {
+  if (T_ASSIGN == tokentype) {
+    return 1;
+  }
+  return 0;
+}
 
 struct ASTnode *funccall() {
   struct ASTnode *tree;
@@ -88,6 +101,7 @@ struct ASTnode *prefix() {
     break;
   default:
     tree = primary();
+    // dumpAST(tree, NOLABEL, 0);
   }
   return tree;
 }
@@ -102,27 +116,39 @@ struct ASTnode *binexpr(int ptp) {
 
   tokentype = Token.token;
   if (T_SEMI == tokentype || T_RPAREN == tokentype) {
+    left->rvalue = 1;
     return left;
   }
 
-  while (op_precedence(tokentype) > ptp) {
+  while ((op_precedence(tokentype) > ptp) ||
+         (rightassoc(tokentype) && op_precedence(tokentype) == ptp)) {
     scan(&Token);
 
     right = binexpr(OpPrec[tokentype]);
 
     ASTop = arithop(tokentype);
-
-    ltemp = modify_type(left, right->type, ASTop);
-    rtemp = modify_type(right, left->type, ASTop);
-    if (NULL == ltemp && NULL == rtemp) {
-      fatal("Incompatible types in binary expression");
-    }
-
-    if (NULL != ltemp) {
-      left = ltemp;
-    }
-    if (NULL != rtemp) {
-      right = rtemp;
+    if (A_ASSIGN == ASTop) {
+      right->rvalue = 1;
+      right = modify_type(right, left->type, 0);
+      if (right == NULL)
+        fatal("Incompatible expression in assignment");
+      ltemp = left;
+      left = right;
+      right = ltemp;
+    } else {
+      left->rvalue = 1;
+      right->rvalue = 1;
+      ltemp = modify_type(left, right->type, ASTop);
+      rtemp = modify_type(right, left->type, ASTop);
+      if (NULL == ltemp && NULL == rtemp) {
+        fatal("Incompatible types in binary expression");
+      }
+      if (NULL != ltemp) {
+        left = ltemp;
+      }
+      if (NULL != rtemp) {
+        right = rtemp;
+      }
     }
 
     left = mkastnode(arithop(tokentype), left->type, left, NULL, right, 0);

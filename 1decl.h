@@ -9,6 +9,7 @@ struct ASTnode *mkastnode(int op, int type, struct ASTnode *left,
 struct ASTnode *mkastleaf(int op, int type, int intvalue);
 struct ASTnode *mkastunary(int op, int type, struct ASTnode *left,
                            int intvalue);
+void dumpAST(struct ASTnode *n, int label, int level);
 
 // expr.c
 struct ASTnode *binexpr(int ptp);
@@ -50,6 +51,7 @@ int cgreturn(int r, int id);
 int cgaddress(int id);
 int cgderef(int r, int type);
 int cgshlconst(int r, int val);
+int cgstorderef(int r1, int r2, int type);
 
 // misc.c
 void match(int t, char *what);
@@ -69,8 +71,6 @@ void var_declaration(int type);
 int parse_type();
 void global_declarations();
 struct ASTnode *function_declaration(int type);
-struct ASTnode *assignment_statement();
-struct ASTnode *print_statement();
 struct ASTnode *if_statement();
 struct ASTnode *compound_statement();
 
