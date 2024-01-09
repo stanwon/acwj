@@ -146,9 +146,17 @@ int genAST(struct ASTnode *n, int reg, int parentASTop) {
       rightreg = cgloadint(n->v.size, P_INT);
       return (cgmul(leftreg, rightreg));
     }
+  case A_STRLIT:
+    return (cgloadglobstr(n->v.id));
   default:
     fatald("Unknown AST operator", n->op);
   }
+}
+
+int genglobstr(char *str) {
+  int l = genlabel();
+  cgglobstr(l, str);
+  return l;
 }
 
 void genpreamble() { cgpreamble(); }

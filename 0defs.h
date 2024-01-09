@@ -54,6 +54,7 @@ enum {
   T_COMMA,
   T_LBRACKET,
   T_RBRACKET,
+  T_STRLIT,
 };
 
 struct token {
@@ -87,6 +88,7 @@ enum {
   A_DEREF,
   A_ADDR,
   A_SCALE,
+  A_STRLIT,
 
   A_BUTT,
 };

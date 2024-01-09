@@ -25,6 +25,7 @@ void genprintint(int reg);
 void genglobsym(int id);
 int genprimsize(int type);
 int genlabel();
+int genglobstr(char *str);
 
 // cg.c
 void freeall_registers();
@@ -53,6 +54,8 @@ int cgaddress(int id);
 int cgderef(int r, int type);
 int cgshlconst(int r, int val);
 int cgstorderef(int r1, int r2, int type);
+void cgglobstr(int l, char *str);
+int cgloadglobstr(int id);
 
 // misc.c
 void match(int t, char *what);

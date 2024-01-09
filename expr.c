@@ -110,7 +110,11 @@ static struct ASTnode *primary() {
     scan(&Token);
     n = binexpr(0);
     rparen();
-    return n;
+    break;
+  case T_STRLIT:
+    id = genglobstr(Text);
+    n = mkastleaf(A_STRLIT, P_CHARPTR, id);
+    break;
   default:
     fatald("Syntax error, token", Token.token);
   }

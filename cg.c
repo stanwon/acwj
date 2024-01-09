@@ -269,3 +269,20 @@ int cgstorderef(int r1, int r2, int type) {
   }
   return (r1);
 }
+
+void cgglobstr(int l, char *str) {
+  char *cptr;
+
+  cglabel(l);
+  for (cptr = str; *cptr; cptr++) {
+    fprintf(Outfile, "\t.byte\t%d\n", *cptr);
+  }
+  fprintf(Outfile, "\t.byte\t0\n");
+}
+
+int cgloadglobstr(int id) {
+  int r = alloc_register();
+
+  fprintf(Outfile, "\tleaq\tL%d(\%%rip), %s\n", id, reglist[r]);
+  return (r);
+}

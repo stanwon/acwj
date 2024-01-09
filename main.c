@@ -57,7 +57,8 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  addglob("printint", P_CHAR, S_FUNCTION, 0, 0);
+  addglob("printint", P_INT, S_FUNCTION, 0, 0);
+  addglob("printchar", P_VOID, S_FUNCTION, 0, 0);
 
   scan(&Token);
   genpreamble();

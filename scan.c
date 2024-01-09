@@ -44,6 +44,55 @@ static int chrpos(char *str, int c) {
   return p ? p - str : -1;
 }
 
+static int scanch() {
+  int c;
+
+  c = next();
+  if ('\\' == c) {
+    switch (c = next()) {
+    case 'a':
+      return '\a';
+    case 'b':
+      return '\b';
+    case 'f':
+      return '\f';
+    case 'n':
+      return '\n';
+    case 'r':
+      return '\r';
+    case 't':
+      return '\t';
+    case 'v':
+      return '\v';
+    case '\\':
+      return '\\';
+    case '"':
+      return '"';
+    case '\'':
+      return '\'';
+    default:
+      fatalc("unknown escape sequence", c);
+    }
+  }
+
+  return c;
+}
+
+static int scanstr(char *buf) {
+  int i, c;
+
+  for (i = 0; i < TEXTLEN - 1; i++) {
+    if ('"' == (c = scanch())) {
+      buf[i] = 0;
+      return i;
+    }
+    buf[i] = c;
+  }
+
+  fatal("String literal too long");
+  return 0;
+}
+
 static int scanint(int c) {
   int k, val = 0;
 
@@ -214,6 +263,17 @@ int scan(struct token *t) {
       putback(c);
       t->token = T_AMPER;
     }
+    break;
+  case '\'':
+    t->intvalue = scanch();
+    t->token = T_INTLIT;
+    if ('\'' != next()) {
+      fatal("Expected '\\'' at end of char literal");
+    }
+    break;
+  case '"':
+    scanstr(Text);
+    t->token = T_STRLIT;
     break;
   default:
     if (isdigit(c)) {
